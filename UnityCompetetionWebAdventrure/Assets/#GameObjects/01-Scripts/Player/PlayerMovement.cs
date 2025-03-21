@@ -205,6 +205,11 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    internal bool GetDashingActive()
+    {
+        return isDashActive;
+    }
+    
     #endregion
     
     #region Jump
