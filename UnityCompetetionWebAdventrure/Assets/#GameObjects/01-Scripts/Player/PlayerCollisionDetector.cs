@@ -23,6 +23,17 @@ public class PlayerCollisionDetector : MonoBehaviour
         UpdateCoyoteTimer();
     }
 
+    #region SetUp
+
+    internal void SetUp()
+    {
+        isGrounded = false;
+        isCoyoteGrounded = false;
+        coyoteTimeElapsed = 0.0f;
+    }
+
+    #endregion
+
     #region Ground Detection
 
     private void CheckGround()

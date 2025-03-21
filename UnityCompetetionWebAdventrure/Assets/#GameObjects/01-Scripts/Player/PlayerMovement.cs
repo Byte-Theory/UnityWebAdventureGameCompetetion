@@ -187,4 +187,13 @@ public class PlayerMovement : MonoBehaviour
     }
 
     #endregion
+
+    #region Physics
+
+    internal Vector2 GetRbVelocity()
+    {
+        return rb.linearVelocity;
+    }
+
+    #endregion
 }
