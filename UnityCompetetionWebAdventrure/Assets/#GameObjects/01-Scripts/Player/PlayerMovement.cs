@@ -13,6 +13,13 @@ public class PlayerMovement : MonoBehaviour
     private float moveSpeed;
     public float moveSpeedChangeSpeed;
     private Vector2 rbLinearVelocity;
+
+    [Header("Dash Data")] 
+    [SerializeField] private float dashSpeed;
+    [SerializeField] private float dashDuration;
+    private float dashTimeElapsed;
+    private bool isDashTriggered;
+    private bool isDashActive;
     
     [Header("Jump")] 
     [SerializeField] private float jumpForce;
@@ -45,6 +52,10 @@ public class PlayerMovement : MonoBehaviour
         
         // Move Speed
         UpdateMoveSpeed();
+        
+        // Dash
+        CheckForDash();
+        UpdateDashTimeElapsed();
         
         // Jump Timer
         UpdateJumpDuration();
@@ -110,6 +121,7 @@ public class PlayerMovement : MonoBehaviour
         jump = moveInput.y > 0;
 
         isWalking = userInput.GetWalkInput();
+        isDashTriggered = userInput.GetDashInput();
     }
 
     #endregion
@@ -118,13 +130,20 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateMoveSpeed()
     {
-        if (isWalking)
+        if (isDashActive)
         {
-            moveSpeed = moveInput.x * walkSpeed;
+            moveSpeed = moveInput.x * dashSpeed;
         }
-        else
+        else 
         {
-            moveSpeed = moveInput.x * runSpeed;   
+            if (isWalking)
+            {
+                moveSpeed = moveInput.x * walkSpeed;
+            }
+            else
+            {
+                moveSpeed = moveInput.x * runSpeed;   
+            }
         }
     }
 
@@ -139,6 +158,33 @@ public class PlayerMovement : MonoBehaviour
         }
         
         rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, rbLinearVelocity, Time.fixedDeltaTime * moveSpeedChangeSpeed);
+    }
+
+    #endregion
+
+    #region Dash
+
+    private void CheckForDash()
+    {
+        if (isDashTriggered && !isDashActive)
+        {
+            isDashActive = true;
+            dashTimeElapsed = 0.0f;
+        }
+    }
+
+    private void UpdateDashTimeElapsed()
+    {
+        if (isDashActive)
+        {
+            dashTimeElapsed += Time.deltaTime;
+
+            if (dashTimeElapsed >= dashDuration)
+            {
+                dashTimeElapsed = 0.0f;
+                isDashActive = false;
+            }
+        }
     }
 
     #endregion

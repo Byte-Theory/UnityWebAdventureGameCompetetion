@@ -149,6 +149,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveInput: {x: 0, y: 0}
+  isWalking: 0
+  isDashing: 0
 --- !u!4 &147918560
 Transform:
   m_ObjectHideFlags: 0
@@ -545,9 +547,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveInput: {x: 0, y: 0}
+  isWalking: 0
   runSpeed: 7
   walkSpeed: 3
   moveSpeedChangeSpeed: 50
+  dashSpeed: 15
+  dashDuration: 0.1
   jumpForce: 400
   minJumpDuration: 0.15
   fallSpeedIncrementFac: 2.5

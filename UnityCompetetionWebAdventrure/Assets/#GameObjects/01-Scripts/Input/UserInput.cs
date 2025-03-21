@@ -6,16 +6,19 @@ public class UserInput : Singleton<UserInput>
     [Header("Player Input")]
     [SerializeField] private Vector2 moveInput;
     [SerializeField] private bool isWalking;
+    [SerializeField] private bool isDashing;
     
     // Input Actions
     InputAction moveAction;
     InputAction walkAction;
+    InputAction dashAction;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         moveAction = InputSystem.actions.FindAction("Move");
         walkAction = InputSystem.actions.FindAction("Walk");
+        dashAction = InputSystem.actions.FindAction("Dash");
     }
 
     // Update is called once per frame
@@ -23,6 +26,7 @@ public class UserInput : Singleton<UserInput>
     {
         ListenForMoveInput();
         ListenForWalkInput();
+        ListenForDashInput();
     }
 
     #region Move Input
@@ -49,6 +53,20 @@ public class UserInput : Singleton<UserInput>
     internal bool GetWalkInput()
     {
         return isWalking;
+    }
+    
+    #endregion
+
+    #region Dash Input
+
+    private void ListenForDashInput()
+    {
+        isDashing = dashAction.IsPressed();
+    }
+
+    internal bool GetDashInput()
+    {
+        return isDashing;
     }
     
     #endregion
