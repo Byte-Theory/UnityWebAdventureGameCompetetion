@@ -147,6 +147,9 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    // CanReset Jump makes sure that jump is reset only after a certain time is passed.
+    // This is added because after adding coyote time the ground check remains true for some time even after player has
+    // left the ground. And this check being true is resetting the jump and which in turn apply the jump force again.
     private void ResetJumping()
     {
         if (canResetJump)
