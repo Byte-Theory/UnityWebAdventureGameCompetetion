@@ -15,8 +15,11 @@ public class PlayerMovement : MonoBehaviour
     
     [Header("Jump")] 
     [SerializeField] private float jumpForce;
+    [SerializeField] private float minJumpDuration;
+    private float jumpTimeElapsed;
     private bool jump;
     private bool isJumping;
+    private bool canResetJump;
 
     [Header("Falling")] 
     [SerializeField] private float fallSpeedIncrementFac;
@@ -41,6 +44,9 @@ public class PlayerMovement : MonoBehaviour
         
         // Move Speed
         UpdateMoveSpeed();
+        
+        // Jump Timer
+        UpdateJumpDuration();
         
         // Ground
         SetGrounded();
@@ -134,15 +140,35 @@ public class PlayerMovement : MonoBehaviour
         if (jump && isGrounded && !isJumping)
         {
             isJumping = true;
+            jumpTimeElapsed = 0.0f;
+            canResetJump = false;
+            
             rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Force);
         }
     }
 
     private void ResetJumping()
     {
-        isJumping = false;
+        if (canResetJump)
+        {
+            canResetJump = false;
+            isJumping = false;
+        }
     }
 
+    private void UpdateJumpDuration()
+    {
+        if (isJumping && !canResetJump)
+        {
+            jumpTimeElapsed += Time.deltaTime;
+
+            if (jumpTimeElapsed >= minJumpDuration)
+            {
+                canResetJump = true;
+            }
+        }
+    }
+    
     #endregion
 
     #region Ground Detection

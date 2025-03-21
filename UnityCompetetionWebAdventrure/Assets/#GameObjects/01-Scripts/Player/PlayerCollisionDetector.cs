@@ -5,23 +5,29 @@ using UnityEngine;
 public class PlayerCollisionDetector : MonoBehaviour
 {
     [Header("Ground Detection")]
-    [SerializeField] private bool isGround;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float groundCheckRadius;
     [SerializeField] private List<Vector3> groundCheckPoints;
-    public bool IsGrounded => isGround;
+    private bool isGrounded;
+    public bool IsGrounded => isGrounded;
+    
+    [Header("Grounded Coyote Time")]
+    [SerializeField] private float coyoteDuration;
+    private float coyoteTimeElapsed;
+    private bool isCoyoteGrounded;
     
     // Update is called once per frame
     void Update()
     {
         CheckGround();
+        UpdateCoyoteTimer();
     }
 
     #region Ground Detection
 
     private void CheckGround()
     {
-        bool isGrounded = false;
+        bool isTempGrounded = false;
         
         for (int i = 0; i < groundCheckPoints.Count; i++)
         {
@@ -32,11 +38,30 @@ public class PlayerCollisionDetector : MonoBehaviour
 
             if (hits.Length > 0)
             {
-                isGrounded = true;
+                isTempGrounded = true;
             }
         }
         
-        this.isGround = isGrounded;
+        isCoyoteGrounded = isTempGrounded;
+
+        if (isCoyoteGrounded)
+        {
+            isGrounded = true;
+            coyoteTimeElapsed = 0;
+        }
+    }
+
+    private void UpdateCoyoteTimer()
+    {
+        if (!isCoyoteGrounded)
+        {
+            coyoteTimeElapsed += Time.deltaTime;
+
+            if (coyoteTimeElapsed >= coyoteDuration)
+            {
+                isGrounded = false;
+            }
+        }
     }
 
     #endregion

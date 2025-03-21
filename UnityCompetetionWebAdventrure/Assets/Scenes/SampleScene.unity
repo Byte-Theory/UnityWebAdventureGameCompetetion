@@ -547,7 +547,8 @@ MonoBehaviour:
   runSpeed: 7
   walkSpeed: 3
   moveSpeedChangeSpeed: 50
-  jumpForce: 300
+  jumpForce: 400
+  minJumpDuration: 0.15
   fallSpeedIncrementFac: 2.5
 --- !u!114 &1065988948
 MonoBehaviour:
@@ -573,7 +574,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b75ae2814669f72488ca889885f122d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGround: 0
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -581,6 +581,7 @@ MonoBehaviour:
   groundCheckPoints:
   - {x: -0.25, y: -0.65, z: 0}
   - {x: 0.015, y: -0.65, z: 0}
+  coyoteDuration: 0.1
 --- !u!61 &1065988950
 BoxCollider2D:
   m_ObjectHideFlags: 0
