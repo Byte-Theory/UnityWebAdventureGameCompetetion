@@ -18,11 +18,17 @@ public class PlayerMovement : MonoBehaviour
     private bool jump;
     private bool isJumping;
 
+    [Header("Falling")] 
+    [SerializeField] private float fallSpeedIncrementFac;
+
     [Header("Ground Check")] 
     private bool isGrounded;
     
     // Rigidbody
     private Rigidbody2D rb;
+    
+    // Player
+    private Player player;
     
     //Ref
     private UserInput userInput;
@@ -33,25 +39,31 @@ public class PlayerMovement : MonoBehaviour
         // Input
         SetUserInput();
         
-        // Move
+        // Move Speed
         UpdateMoveSpeed();
+        
+        // Ground
+        SetGrounded();
+    }
+
+    private void FixedUpdate()
+    {
+        // Move
+        Move();
         
         // Jump
         Jump();
     }
 
-    private void FixedUpdate()
-    {
-        Move();
-    }
-
     #region SetUp
 
-    internal void SetUp()
+    internal void SetUp(Player player)
     {
         rb = GetComponent<Rigidbody2D>();
         
         userInput = UserInput.Instance;
+
+        this.player = player;
     }
 
     #endregion
@@ -60,9 +72,35 @@ public class PlayerMovement : MonoBehaviour
 
     private void SetUserInput()
     {
-        moveInput = userInput.GetMoveInput();
+        Vector2 input = userInput.GetMoveInput();
+
+        if (input.x > 0)
+        {
+            moveInput.x = 1.0f;
+        }
+        else if (input.x < 0)
+        {
+            moveInput.x = -1.0f;
+        }
+        else
+        {
+            moveInput.x = 0.0f;
+        }
         
-        jump = userInput.GetJumpInput();
+        if (input.y > 0)
+        {
+            moveInput.y = 1.0f;
+        }
+        else if (input.y < 0)
+        {
+            moveInput.y = -1.0f;
+        }
+        else
+        {
+            moveInput.y = 0.0f;
+        }
+        
+        jump = moveInput.y > 0;
     }
 
     #endregion
@@ -78,6 +116,11 @@ public class PlayerMovement : MonoBehaviour
     {
         rbLinearVelocity.x = moveSpeed;
         rbLinearVelocity.y = rb.linearVelocityY;
+
+        if (rbLinearVelocity.y < 0)
+        {
+            rbLinearVelocity.y -= Time.deltaTime * fallSpeedIncrementFac;
+        }
         
         rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, rbLinearVelocity, Time.fixedDeltaTime * moveSpeedChangeSpeed);
     }
@@ -91,7 +134,26 @@ public class PlayerMovement : MonoBehaviour
         if (jump && isGrounded && !isJumping)
         {
             isJumping = true;
-            rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
+            rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Force);
+        }
+    }
+
+    private void ResetJumping()
+    {
+        isJumping = false;
+    }
+
+    #endregion
+
+    #region Ground Detection
+
+    private void SetGrounded()
+    {
+        isGrounded = player.playerCollisionDetector.IsGrounded;
+
+        if (isGrounded)
+        {
+            ResetJumping();
         }
     }
 

@@ -5,7 +5,6 @@ public class UserInput : Singleton<UserInput>
 {
     [Header("Player Input")]
     [SerializeField] private Vector2 moveInput;
-    [SerializeField] private bool jumpInput;
     
     // Input Actions
     InputAction moveAction;
@@ -20,7 +19,6 @@ public class UserInput : Singleton<UserInput>
     void Update()
     {
         ListenForMoveInput();
-        SetJumpInput();
     }
 
     #region Move Input
@@ -33,20 +31,6 @@ public class UserInput : Singleton<UserInput>
     internal Vector3 GetMoveInput()
     {
         return moveInput;
-    }
-
-    #endregion
-
-    #region Jump
-
-    private void SetJumpInput()
-    {
-        jumpInput = moveInput.y > 0;
-    }
-    
-    internal bool GetJumpInput()
-    {
-        return jumpInput;
     }
 
     #endregion
