@@ -26,8 +26,11 @@ public class PlayerMovement : MonoBehaviour
     [Header("Jump")] 
     [SerializeField] private float jumpForce;
     [SerializeField] private float minJumpDuration;
+    [SerializeField] private float jumpBufferDuration;
     private float jumpTimeElapsed;
+    private float jumpBufferTimeElapsed;
     private bool jump;
+    private bool isJumpInBuffer;
     private bool isJumping;
     private bool canResetJump;
 
@@ -60,7 +63,9 @@ public class PlayerMovement : MonoBehaviour
         UpdateDashTimeElapsed();
         UpdateDashCooldown();
         
-        // Jump Timer
+        // Jump
+        TriggerJump();
+        UpdateJumpBufferDuration();
         UpdateJumpDuration();
         
         // Ground
@@ -214,9 +219,18 @@ public class PlayerMovement : MonoBehaviour
     
     #region Jump
 
+    private void TriggerJump()
+    {
+        if (jump)
+        {
+            isJumpInBuffer = true;
+            jumpBufferTimeElapsed = 0.0f;
+        }
+    }
+    
     private void Jump()
     {
-        if (jump && isGrounded && !isJumping)
+        if (isJumpInBuffer && isGrounded && !isJumping)
         {
             isJumping = true;
             jumpTimeElapsed = 0.0f;
@@ -238,6 +252,19 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void UpdateJumpBufferDuration()
+    {
+        if (isJumpInBuffer)
+        {
+            jumpBufferTimeElapsed += Time.deltaTime;
+
+            if (jumpBufferTimeElapsed >= jumpBufferDuration)
+            {
+                isJumpInBuffer = false;
+            }
+        }
+    }
+    
     private void UpdateJumpDuration()
     {
         if (isJumping && !canResetJump)

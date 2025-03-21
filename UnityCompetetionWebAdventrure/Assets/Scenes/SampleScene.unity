@@ -578,8 +578,9 @@ MonoBehaviour:
   dashSpeed: 15
   dashDuration: 0.2
   dashCooldownDuration: 2
-  jumpForce: 400
+  jumpForce: 500
   minJumpDuration: 0.15
+  jumpBufferDuration: 0.25
   fallSpeedIncrementFac: 2.5
 --- !u!114 &1065988948
 MonoBehaviour:
