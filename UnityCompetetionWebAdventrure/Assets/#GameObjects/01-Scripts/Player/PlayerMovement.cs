@@ -4,7 +4,8 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Input")]
-    public Vector2 moveInput;
+    [SerializeField] private Vector2 moveInput;
+    [SerializeField] private bool isWalking;
     
     [Header("Movement Data")]
     [SerializeField] private float runSpeed;
@@ -107,6 +108,8 @@ public class PlayerMovement : MonoBehaviour
         }
         
         jump = moveInput.y > 0;
+
+        isWalking = userInput.GetWalkInput();
     }
 
     #endregion
@@ -115,7 +118,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateMoveSpeed()
     {
-        moveSpeed = moveInput.x * runSpeed;
+        if (isWalking)
+        {
+            moveSpeed = moveInput.x * walkSpeed;
+        }
+        else
+        {
+            moveSpeed = moveInput.x * runSpeed;   
+        }
     }
 
     private void Move()
