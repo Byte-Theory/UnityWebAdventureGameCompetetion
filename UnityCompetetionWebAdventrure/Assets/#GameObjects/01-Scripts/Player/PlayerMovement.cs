@@ -17,9 +17,11 @@ public class PlayerMovement : MonoBehaviour
     [Header("Dash Data")] 
     [SerializeField] private float dashSpeed;
     [SerializeField] private float dashDuration;
+    [SerializeField] private float dashCooldownDuration;
     private float dashTimeElapsed;
     private bool isDashTriggered;
     private bool isDashActive;
+    private bool isDashOnCooldown;
     
     [Header("Jump")] 
     [SerializeField] private float jumpForce;
@@ -56,6 +58,7 @@ public class PlayerMovement : MonoBehaviour
         // Dash
         CheckForDash();
         UpdateDashTimeElapsed();
+        UpdateDashCooldown();
         
         // Jump Timer
         UpdateJumpDuration();
@@ -166,7 +169,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void CheckForDash()
     {
-        if (isDashTriggered && !isDashActive)
+        if (isDashTriggered && !isDashActive && !isDashOnCooldown)
         {
             isDashActive = true;
             dashTimeElapsed = 0.0f;
@@ -183,6 +186,21 @@ public class PlayerMovement : MonoBehaviour
             {
                 dashTimeElapsed = 0.0f;
                 isDashActive = false;
+                isDashOnCooldown = true;
+            }
+        }
+    }
+    
+    private void UpdateDashCooldown()
+    {
+        if (isDashOnCooldown)
+        {
+            dashTimeElapsed += Time.deltaTime;
+
+            if (dashTimeElapsed >= dashCooldownDuration)
+            {
+                dashTimeElapsed = 0.0f;
+                isDashOnCooldown = false;
             }
         }
     }

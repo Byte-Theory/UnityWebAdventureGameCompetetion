@@ -552,7 +552,8 @@ MonoBehaviour:
   walkSpeed: 3
   moveSpeedChangeSpeed: 50
   dashSpeed: 15
-  dashDuration: 0.1
+  dashDuration: 0.2
+  dashCooldownDuration: 2
   jumpForce: 400
   minJumpDuration: 0.15
   fallSpeedIncrementFac: 2.5
