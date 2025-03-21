@@ -24,7 +24,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Falling")] 
     [SerializeField] private float fallSpeedIncrementFac;
 
-    [Header("Ground Check")] 
+    // Ground Check 
     private bool isGrounded;
     
     // Rigidbody
