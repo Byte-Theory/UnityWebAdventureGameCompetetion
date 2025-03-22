@@ -24,6 +24,7 @@ MonoBehaviour:
     attack2Delay: 0
     attack2AnimSpeed: 0
     attack2StaminaCost: 0
+    attackSpChargeDur: 0
     attackSpAnimDur: 0
     attackSpDelay: 0
     attackSpAnimSpeed: 0
@@ -40,9 +41,10 @@ MonoBehaviour:
     attack2Delay: 0.4
     attack2AnimSpeed: 1.25
     attack2StaminaCost: 10
+    attackSpChargeDur: 2
     attackSpAnimDur: 1
     attackSpDelay: 0.7
-    attackSpAnimSpeed: 1.25
+    attackSpAnimSpeed: 1.75
     attackSpStaminaCost: 20
     attackSpCooldownDuration: 1
   - WeaponType: 2
@@ -56,6 +58,7 @@ MonoBehaviour:
     attack2Delay: 0.4
     attack2AnimSpeed: 1.25
     attack2StaminaCost: 10
+    attackSpChargeDur: 2
     attackSpAnimDur: 1
     attackSpDelay: -1
     attackSpAnimSpeed: 1.25

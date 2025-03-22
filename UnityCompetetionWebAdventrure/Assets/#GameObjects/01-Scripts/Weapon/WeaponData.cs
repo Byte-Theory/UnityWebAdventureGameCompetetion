@@ -24,6 +24,7 @@ public class WeaponData : ScriptableObject
         public float attack2StaminaCost;
 
         [Header("Attack Special")] 
+        public float attackSpChargeDur;
         public float attackSpAnimDur;
         public float attackSpDelay;
         public float attackSpAnimSpeed;

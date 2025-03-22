@@ -25,8 +25,12 @@ public class PlayerWeaponManager : MonoBehaviour
     private float attackTimeElapsed;
     
     // Attack Special
+    private bool attackSpecialChargingInput;
     private bool attackSpecialInput;
+    private bool isAttackSpecialCharging;
+    private bool isAttackSpecialCharged;
     private bool isAttackSpecialOnCooldown;
+    private float attackSpecialChargingTimeElapsed;
     private float attackSpecialCooldownTimeElpased;
     
     // Carrying Weapon
@@ -44,6 +48,7 @@ public class PlayerWeaponManager : MonoBehaviour
         
         CheckForAttack();
         CheckForAttackSpecial();
+        UpdateAttackSpecialCharging();
         
         UpdateAttackTimer();
         AttackSpecialCooldownTimer();
@@ -125,6 +130,7 @@ public class PlayerWeaponManager : MonoBehaviour
     private void GetInput()
     {
         attackInput = userInput.GetAttackInput();
+        attackSpecialChargingInput = userInput.GetAttackSpecialChargingInput();
         attackSpecialInput = userInput.GetAttackSpecialInput();
     }
 
@@ -176,8 +182,24 @@ public class PlayerWeaponManager : MonoBehaviour
     {
         bool isDashing = player.playermovement.GetDashingActive();
         
-        if (attackSpecialInput && !isAttacking && !isAttackSpecialOnCooldown && !isDashing  && equippedWeaponType != WeaponType.None)
+        if (attackSpecialChargingInput && !isAttacking && 
+            !isAttackSpecialOnCooldown && !isAttackSpecialCharged && 
+            !isDashing && equippedWeaponType != WeaponType.None)
         {
+            isAttackSpecialCharging = true;
+        }
+        else
+        {
+            isAttackSpecialCharging = false;
+            attackSpecialChargingTimeElapsed = 0.0f;
+        }
+        
+        if (attackSpecialInput && !isAttacking && 
+            !isAttackSpecialOnCooldown && isAttackSpecialCharged && 
+            !isDashing && equippedWeaponType != WeaponType.None)
+        {
+            isAttackSpecialCharged = false;
+            
             isAttacking = true;
             doAttackDmg = false;
             attackTimeElapsed = 0.0f;
@@ -194,6 +216,20 @@ public class PlayerWeaponManager : MonoBehaviour
         attackDelay = equippedWeaponData.attackSpDelay / equippedWeaponData.attackSpAnimSpeed;
     }
 
+    private void UpdateAttackSpecialCharging()
+    {
+        if (isAttackSpecialCharging)
+        {
+            attackSpecialChargingTimeElapsed += Time.deltaTime;
+
+            if (attackSpecialChargingTimeElapsed >= equippedWeaponData.attackSpChargeDur)
+            {
+                isAttackSpecialCharging = false;
+                isAttackSpecialCharged = true;
+            }
+        }
+    }
+    
     private void SetAttackSpecialOnCooldown()
     {
         isAttackSpecialOnCooldown = true;

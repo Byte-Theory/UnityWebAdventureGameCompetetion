@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class UserInput : Singleton<UserInput>
 {
@@ -8,6 +9,7 @@ public class UserInput : Singleton<UserInput>
     [SerializeField] private bool isWalking;
     [SerializeField] private bool isDashing;
     [SerializeField] private bool isAttacking;
+    [SerializeField] private bool isAttackSpecialCharging;
     [SerializeField] private bool isAttackingSpecial;
     
     // Input Actions
@@ -93,7 +95,13 @@ public class UserInput : Singleton<UserInput>
 
     private void ListenForAttackSpecialInput()
     {
-        isAttackingSpecial = attackSpecialAction.IsPressed();
+        isAttackSpecialCharging = attackSpecialAction.IsPressed();
+        isAttackingSpecial = attackSpecialAction.WasReleasedThisFrame();
+    }
+
+    internal bool GetAttackSpecialChargingInput()
+    {
+        return isAttackSpecialCharging;
     }
 
     internal bool GetAttackSpecialInput()
