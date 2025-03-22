@@ -41,6 +41,7 @@ public class PlayerWeaponManager : MonoBehaviour
     
     //Ref
     private UserInput userInput;
+    private CameraShake cameraShake;
 
     private void Update()
     {
@@ -59,6 +60,7 @@ public class PlayerWeaponManager : MonoBehaviour
     internal void SetUp(Player player)
     {
         userInput = UserInput.Instance;
+        cameraShake = CameraController.Instance.cameraShake;
         
         this.player = player;
 
@@ -283,11 +285,12 @@ public class PlayerWeaponManager : MonoBehaviour
                 isAttacking = false;
                 doAttackDmg = false;
 
-                
                 if (isSpecialAttack && !isAttackSpecialOnCooldown)
                 {
                     bool isSpearThrown = CheckAndThrowSpear();
                     SetAttackSpecialOnCooldown();
+
+                    cameraShake.ShakeCameraOnAttackSpecial();
                 }
                 
                 SetAttackAnimation(isAttacking);

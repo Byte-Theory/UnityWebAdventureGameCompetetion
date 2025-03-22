@@ -20,6 +20,7 @@ public class CameraController : Singleton<CameraController>
         cameraShake = GetComponent<CameraShake>();
 
         cameraMovement.SetUp(player);
+        cameraShake.SetUp();
         
         this.player = player;
     }

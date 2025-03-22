@@ -514,6 +514,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b4b228658ec8e640bae5d338b8c36ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  camT: {fileID: 519420032}
+  camOriginalPos: {x: 0, y: 0, z: 0}
+  attackSpShakeData:
+    shakeDuration: 0.1
+    shakeStrength: 0.075
+    vibrato: 50
+    randomness: 90
+    snapping: 0
+    fadeOut: 1
+    shakeRandomnessMode: 1
 --- !u!114 &2057525818
 MonoBehaviour:
   m_ObjectHideFlags: 0
