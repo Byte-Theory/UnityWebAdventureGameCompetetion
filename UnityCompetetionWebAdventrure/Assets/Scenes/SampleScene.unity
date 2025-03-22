@@ -530,7 +530,7 @@ MonoBehaviour:
   followSpeedY: 50
   rigFollowOffset: {x: 0, y: 0, z: -10}
   pivotT: {fileID: 333078138}
-  pivotChaneSpeed: 5
+  pivotChaneSpeed: 1
   pivotOffsetCenter: {x: 0, y: 0, z: 0}
   pivotOffsetRight: {x: 2.75, y: 0, z: 0}
   pivotOffsetLeft: {x: -2.75, y: 0, z: 0}
