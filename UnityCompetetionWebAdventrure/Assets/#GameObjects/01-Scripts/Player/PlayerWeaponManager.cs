@@ -32,6 +32,7 @@ public class PlayerWeaponManager : MonoBehaviour
     private bool isAttackSpecialOnCooldown;
     private float attackSpecialChargingTimeElapsed;
     private float attackSpecialCooldownTimeElpased;
+    private float attackSpecialIntensity;
     
     // Carrying Weapon
     private List<WeaponType> carryingWeaponTypes;
@@ -184,6 +185,32 @@ public class PlayerWeaponManager : MonoBehaviour
     {
         bool isDashing = player.playermovement.GetDashingActive();
         
+        if (attackSpecialInput && !isAttacking && 
+            !isAttackSpecialOnCooldown && 
+            !isDashing && equippedWeaponType != WeaponType.None)
+        {
+            if (isAttackSpecialCharged)
+            {
+                attackSpecialIntensity =  1;
+            }
+            else
+            {
+                attackSpecialIntensity =  attackSpecialChargingTimeElapsed / equippedWeaponData.attackSpChargeDur;
+            }
+            
+            isAttackSpecialCharged = false;
+            
+            isAttacking = true;
+            doAttackDmg = false;
+            attackTimeElapsed = 0.0f;
+            isSpecialAttack = true;
+
+            SetAttackSpecialData();
+            SetAttackAnimation(isAttacking);
+            
+            player.playerEfxManager.PlayAttackSpecialChargedEfx(isAttackSpecialCharged);
+        }
+        
         if (attackSpecialChargingInput && !isAttacking && 
             !isAttackSpecialOnCooldown && !isAttackSpecialCharged && 
             !isDashing && equippedWeaponType != WeaponType.None)
@@ -196,23 +223,6 @@ public class PlayerWeaponManager : MonoBehaviour
             isAttackSpecialCharging = false;
             attackSpecialChargingTimeElapsed = 0.0f;
             player.playerEfxManager.PlayAttackSpecialChargingEfx(isAttackSpecialCharging);
-        }
-        
-        if (attackSpecialInput && !isAttacking && 
-            !isAttackSpecialOnCooldown && isAttackSpecialCharged && 
-            !isDashing && equippedWeaponType != WeaponType.None)
-        {
-            isAttackSpecialCharged = false;
-            
-            isAttacking = true;
-            doAttackDmg = false;
-            attackTimeElapsed = 0.0f;
-            isSpecialAttack = true;
-
-            SetAttackSpecialData();
-            SetAttackAnimation(isAttacking);
-            
-            player.playerEfxManager.PlayAttackSpecialChargedEfx(isAttackSpecialCharged);
         }
     }
     
