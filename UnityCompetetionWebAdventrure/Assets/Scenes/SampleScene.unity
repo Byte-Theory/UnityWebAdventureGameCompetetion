@@ -518,7 +518,7 @@ MonoBehaviour:
   camOriginalPos: {x: 0, y: 0, z: 0}
   attackSpShakeData:
     shakeDuration: 0.1
-    shakeStrength: 0.075
+    shakeStrength: 0.1
     vibrato: 50
     randomness: 90
     snapping: 0

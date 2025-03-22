@@ -34,9 +34,14 @@ public class CameraShake : MonoBehaviour
 
     #region Attach Special Charging
 
-    internal void ShakeCameraOnAttackSpecial()
+    internal void ShakeCameraOnAttackSpecial(float attackIntensity)
     {
-        camT.DOShakePosition(attackSpShakeData.shakeDuration, attackSpShakeData.shakeStrength, 
+        if (attackIntensity < 0.5f)
+        {
+            attackIntensity = 0.5f;
+        }
+        
+        camT.DOShakePosition(attackSpShakeData.shakeDuration, attackSpShakeData.shakeStrength * attackIntensity, 
                 attackSpShakeData.vibrato, attackSpShakeData.randomness, attackSpShakeData.snapping, 
                 attackSpShakeData.fadeOut, attackSpShakeData.shakeRandomnessMode)
             .SetEase(Ease.InOutQuad)

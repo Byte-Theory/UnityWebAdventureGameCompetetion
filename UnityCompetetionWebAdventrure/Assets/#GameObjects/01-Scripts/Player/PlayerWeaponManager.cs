@@ -306,7 +306,7 @@ public class PlayerWeaponManager : MonoBehaviour
                     bool isSpearThrown = CheckAndThrowSpear();
                     SetAttackSpecialOnCooldown();
 
-                    cameraShake.ShakeCameraOnAttackSpecial();
+                    cameraShake.ShakeCameraOnAttackSpecial(attackSpecialIntensity);
                 }
                 
                 SetAttackAnimation(isAttacking);
