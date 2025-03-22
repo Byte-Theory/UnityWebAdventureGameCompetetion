@@ -13,17 +13,20 @@ public class WeaponData : ScriptableObject
         public float attack1Chance;
         public float attack1AnimDur;
         public float attack1Delay;
+        public float attack1AnimSpeed;
         public float attack1StaminaCost;
         
         [Header("Attack 2")]
         public float attack2Chance;
         public float attack2AnimDur;
         public float attack2Delay;
+        public float attack2AnimSpeed;
         public float attack2StaminaCost;
 
         [Header("Attack Special")] 
         public float attackSpAnimDur;
         public float attackSpDelay;
+        public float attackSpAnimSpeed;
         public float attackSpStaminaCost;
         public float attackSpCooldownDuration;
     }

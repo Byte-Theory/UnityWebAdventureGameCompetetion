@@ -158,13 +158,13 @@ public class PlayerWeaponManager : MonoBehaviour
 
         if (isDoingAttack1)
         {
-            attackAnimDuration = equippedWeaponData.attack1AnimDur;
-            attackDelay = equippedWeaponData.attack1Delay;
+            attackAnimDuration = equippedWeaponData.attack1AnimDur / equippedWeaponData.attack1AnimSpeed;
+            attackDelay = equippedWeaponData.attack1Delay / equippedWeaponData.attack1AnimSpeed;
         }
         else
         {
-            attackAnimDuration = equippedWeaponData.attack2AnimDur;
-            attackDelay = equippedWeaponData.attack2Delay;
+            attackAnimDuration = equippedWeaponData.attack2AnimDur / equippedWeaponData.attack2AnimSpeed;
+            attackDelay = equippedWeaponData.attack2Delay / equippedWeaponData.attack2AnimSpeed;
         }
     }
 
@@ -190,8 +190,8 @@ public class PlayerWeaponManager : MonoBehaviour
     
     private void SetAttackSpecialData()
     {
-        attackAnimDuration = equippedWeaponData.attackSpAnimDur;
-        attackDelay = equippedWeaponData.attackSpDelay;
+        attackAnimDuration = equippedWeaponData.attackSpAnimDur / equippedWeaponData.attackSpAnimSpeed;
+        attackDelay = equippedWeaponData.attackSpDelay / equippedWeaponData.attackSpAnimSpeed;
     }
 
     private void SetAttackSpecialOnCooldown()
