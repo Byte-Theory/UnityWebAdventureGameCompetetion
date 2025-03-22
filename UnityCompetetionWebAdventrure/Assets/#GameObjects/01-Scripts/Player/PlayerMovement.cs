@@ -130,6 +130,13 @@ public class PlayerMovement : MonoBehaviour
 
         isWalking = userInput.GetWalkInput();
         isDashTriggered = userInput.GetDashInput();
+
+        bool isAttacking = player.playerWeaponManager.GetIsAttacking();
+
+        if (isAttacking && isGrounded)
+        {
+            moveInput.x = 0;
+        }
     }
 
     #endregion

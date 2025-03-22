@@ -7,11 +7,15 @@ public class UserInput : Singleton<UserInput>
     [SerializeField] private Vector2 moveInput;
     [SerializeField] private bool isWalking;
     [SerializeField] private bool isDashing;
+    [SerializeField] private bool isAttacking;
+    [SerializeField] private bool isAttackingSpecial;
     
     // Input Actions
     InputAction moveAction;
     InputAction walkAction;
     InputAction dashAction;
+    InputAction attackAction;
+    InputAction attackSpecialAction;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -19,6 +23,8 @@ public class UserInput : Singleton<UserInput>
         moveAction = InputSystem.actions.FindAction("Move");
         walkAction = InputSystem.actions.FindAction("Walk");
         dashAction = InputSystem.actions.FindAction("Dash");
+        attackAction = InputSystem.actions.FindAction("Attack");
+        attackSpecialAction = InputSystem.actions.FindAction("AttackSpecial");
     }
 
     // Update is called once per frame
@@ -27,6 +33,8 @@ public class UserInput : Singleton<UserInput>
         ListenForMoveInput();
         ListenForWalkInput();
         ListenForDashInput();
+        ListenForAttackInput();
+        ListenForAttackSpecialInput();
     }
 
     #region Move Input
@@ -69,5 +77,29 @@ public class UserInput : Singleton<UserInput>
         return isDashing;
     }
     
+    #endregion
+
+    #region Attack
+
+    private void ListenForAttackInput()
+    {
+        isAttacking = attackAction.IsPressed();
+    }
+
+    internal bool GetAttackInput()
+    {
+        return isAttacking;
+    }
+
+    private void ListenForAttackSpecialInput()
+    {
+        isAttackingSpecial = attackSpecialAction.IsPressed();
+    }
+
+    internal bool GetAttackSpecialInput()
+    {
+        return isAttackingSpecial;
+    }
+
     #endregion
 }

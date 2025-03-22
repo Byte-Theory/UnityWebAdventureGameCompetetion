@@ -11,6 +11,11 @@ public class PlayerAnimator : MonoBehaviour
     private readonly string AnimDashTag = "Dash";
     private readonly string AnimDieTag = "Die";
     
+    private readonly string AnimWeaponTypeTag = "WeaponType";
+    private readonly string AnimAttack1Tag = "Attack1";
+    private readonly string AnimAttack2Tag = "Attack2";
+    private readonly string AnimAttackSpecialTag = "AttackSpecial";
+    
     // Player
     private Player player;
     
@@ -32,7 +37,7 @@ public class PlayerAnimator : MonoBehaviour
 
     #endregion
 
-    #region Animations Triggering
+    #region Movement Animations
     
     private void UpdateRunAnimation()
     {
@@ -68,6 +73,34 @@ public class PlayerAnimator : MonoBehaviour
     internal void PlayDeathAnimation()
     {
         anim.SetTrigger(AnimDieTag);
+    }
+    
+    #endregion
+
+    #region Animation Type Setting Based On Weapon
+
+    internal void SetAnimatorWeaponType(int weaponType)
+    {
+        anim.SetInteger(AnimWeaponTypeTag, weaponType);
+    }
+
+    #endregion
+
+    #region Attack Animations
+
+    internal void SetAttack1AnimState(bool play)
+    {
+        anim.SetBool(AnimAttack1Tag, play);    
+    }
+    
+    internal void SetAttack2AnimState(bool play)
+    {
+        anim.SetBool(AnimAttack2Tag, play);    
+    }
+    
+    internal void SetAttackSpecialAnimState(bool play)
+    {
+        anim.SetBool(AnimAttackSpecialTag, play);    
     }
     
     #endregion
