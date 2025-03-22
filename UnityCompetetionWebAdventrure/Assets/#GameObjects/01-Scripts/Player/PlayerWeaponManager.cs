@@ -58,6 +58,9 @@ public class PlayerWeaponManager : MonoBehaviour
         this.player = player;
 
         carryingWeaponTypes = new List<WeaponType>();
+
+        AddWeaponTypeCarryingWeapon(WeaponType.None);
+        EquipNoWeapon();
     }
 
     #endregion
@@ -101,6 +104,11 @@ public class PlayerWeaponManager : MonoBehaviour
 
     #region Equiped Weapon
 
+    private void EquipNoWeapon()
+    {
+        SetEquippedWeapon(WeaponType.None);
+    }
+    
     private void SetEquippedWeapon(WeaponType weaponType)
     {
         equippedWeaponType = weaponType;
@@ -130,7 +138,7 @@ public class PlayerWeaponManager : MonoBehaviour
     {
         bool isDashing = player.playermovement.GetDashingActive();
         
-        if (attackInput && !isAttacking && !isDashing)
+        if (attackInput && !isAttacking && !isDashing && equippedWeaponType != WeaponType.None)
         {
             isAttacking = true;
             doAttackDmg = false;
@@ -168,7 +176,7 @@ public class PlayerWeaponManager : MonoBehaviour
     {
         bool isDashing = player.playermovement.GetDashingActive();
         
-        if (attackSpecialInput && !isAttacking && !isAttackSpecialOnCooldown && !isDashing)
+        if (attackSpecialInput && !isAttacking && !isAttackSpecialOnCooldown && !isDashing  && equippedWeaponType != WeaponType.None)
         {
             isAttacking = true;
             doAttackDmg = false;
@@ -205,6 +213,19 @@ public class PlayerWeaponManager : MonoBehaviour
             }
         }
     }
+
+    private bool CheckAndThrowSpear()
+    {
+        if (equippedWeaponType == WeaponType.Spear)
+        {
+            carryingWeaponTypes.Remove(equippedWeaponType);
+            EquipNoWeapon();
+
+            return true;
+        }
+
+        return false;
+    }
     
     #endregion
     
@@ -214,7 +235,7 @@ public class PlayerWeaponManager : MonoBehaviour
         {
             attackTimeElapsed += Time.deltaTime;
 
-            if (attackTimeElapsed >= attackDelay && !doAttackDmg)
+            if (attackDelay >= 0 && attackTimeElapsed >= attackDelay && !doAttackDmg)
             {
                 doAttackDmg = true;
                 
@@ -226,11 +247,13 @@ public class PlayerWeaponManager : MonoBehaviour
                 isAttacking = false;
                 doAttackDmg = false;
 
+                
                 if (isSpecialAttack && !isAttackSpecialOnCooldown)
                 {
+                    bool isSpearThrown = CheckAndThrowSpear();
                     SetAttackSpecialOnCooldown();
                 }
-
+                
                 SetAttackAnimation(isAttacking);
             }
         }
@@ -240,7 +263,6 @@ public class PlayerWeaponManager : MonoBehaviour
     {
         return isAttacking;
     }
-    
     
     private void SetAttackAnimation(bool play)
     {

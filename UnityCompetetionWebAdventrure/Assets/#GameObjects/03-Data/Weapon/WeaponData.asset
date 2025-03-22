@@ -13,6 +13,19 @@ MonoBehaviour:
   m_Name: WeaponData
   m_EditorClassIdentifier: 
   allWeaponsData:
+  - WeaponType: 0
+    attack1Chance: 0
+    attack1AnimDur: 0
+    attack1Delay: 0
+    attack1StaminaCost: 0
+    attack2Chance: 0
+    attack2AnimDur: 0
+    attack2Delay: 0
+    attack2StaminaCost: 0
+    attackSpAnimDur: 0
+    attackSpDelay: 0
+    attackSpStaminaCost: 0
+    attackSpCooldownDuration: 0
   - WeaponType: 1
     attack1Chance: 0.6
     attack1AnimDur: 0.58
@@ -24,5 +37,18 @@ MonoBehaviour:
     attack2StaminaCost: 10
     attackSpAnimDur: 1
     attackSpDelay: 0.7
+    attackSpStaminaCost: 20
+    attackSpCooldownDuration: 1
+  - WeaponType: 2
+    attack1Chance: 0.6
+    attack1AnimDur: 1
+    attack1Delay: 0.5
+    attack1StaminaCost: 10
+    attack2Chance: 0.4
+    attack2AnimDur: 0.58
+    attack2Delay: 0.4
+    attack2StaminaCost: 10
+    attackSpAnimDur: 1
+    attackSpDelay: -1
     attackSpStaminaCost: 20
     attackSpCooldownDuration: 1
