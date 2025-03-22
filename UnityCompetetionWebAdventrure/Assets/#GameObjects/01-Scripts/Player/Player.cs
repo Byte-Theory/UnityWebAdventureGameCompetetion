@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     public PlayerView playerView { get; private set; }
     public PlayerAnimator playerAnimator { get; private set; }
     public PlayerWeaponManager playerWeaponManager { get; private set; }
+    public PlayerEfxManager playerEfxManager { get; private set; }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -23,6 +24,7 @@ public class Player : MonoBehaviour
         playerView = GetComponent<PlayerView>();
         playerAnimator = GetComponent<PlayerAnimator>();
         playerWeaponManager = GetComponent<PlayerWeaponManager>();
+        playerEfxManager = GetComponent<PlayerEfxManager>();
         
         playermovement.SetUp(this);
         playerCollisionDetector.SetUp(this);

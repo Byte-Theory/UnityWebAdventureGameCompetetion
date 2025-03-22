@@ -189,11 +189,13 @@ public class PlayerWeaponManager : MonoBehaviour
             !isDashing && equippedWeaponType != WeaponType.None)
         {
             isAttackSpecialCharging = true;
+            player.playerEfxManager.PlayAttackSpecialChargingEfx(isAttackSpecialCharging);
         }
         else
         {
             isAttackSpecialCharging = false;
             attackSpecialChargingTimeElapsed = 0.0f;
+            player.playerEfxManager.PlayAttackSpecialChargingEfx(isAttackSpecialCharging);
         }
         
         if (attackSpecialInput && !isAttacking && 
@@ -209,6 +211,8 @@ public class PlayerWeaponManager : MonoBehaviour
 
             SetAttackSpecialData();
             SetAttackAnimation(isAttacking);
+            
+            player.playerEfxManager.PlayAttackSpecialChargedEfx(isAttackSpecialCharged);
         }
     }
     
@@ -228,6 +232,8 @@ public class PlayerWeaponManager : MonoBehaviour
             {
                 isAttackSpecialCharging = false;
                 isAttackSpecialCharged = true;
+                
+                player.playerEfxManager.PlayAttackSpecialChargedEfx(isAttackSpecialCharged);
             }
         }
     }
