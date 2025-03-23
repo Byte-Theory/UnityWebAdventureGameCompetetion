@@ -14,7 +14,7 @@ TagManager:
   - Ground
   - Player
   - WeaponPickUp
-  - 
+  - Enemy
   - 
   - 
   - 
@@ -43,6 +43,9 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 1497469821
+    locked: 0
+  - name: Enemy
+    uniqueID: 4057387953
     locked: 0
   m_RenderingLayers:
   - Default

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Serialization;
@@ -23,6 +24,18 @@ public class CameraShake : MonoBehaviour
     [SerializeField] private Vector3 camOriginalPos;
     [SerializeField] private CameraShakeData attackSpShakeData;
 
+    public static Action<float> ShakeCameraOnAttackSpecial;
+
+    private void OnEnable()
+    {
+        ShakeCameraOnAttackSpecial += OnShakeCameraOnAttackSpecial;
+    }
+
+    private void OnDisable()
+    {
+        ShakeCameraOnAttackSpecial -= OnShakeCameraOnAttackSpecial;
+    }
+
     #region SetUp
 
     internal void SetUp()
@@ -34,7 +47,7 @@ public class CameraShake : MonoBehaviour
 
     #region Attach Special Charging
 
-    internal void ShakeCameraOnAttackSpecial(float attackIntensity)
+    internal void OnShakeCameraOnAttackSpecial(float attackIntensity)
     {
         if (attackIntensity < 0.5f)
         {
