@@ -10,6 +10,7 @@ public enum EnemyMovementStates
     Unknown,
     Idle,
     Patrolling,
+    ChasingPlayerIdle,
     LookingAtPlayer,
     ChasingPlayer,
     Attacking,

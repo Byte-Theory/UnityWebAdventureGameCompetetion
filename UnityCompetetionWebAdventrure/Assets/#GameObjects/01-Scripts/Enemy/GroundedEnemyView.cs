@@ -43,7 +43,7 @@ public class GroundedEnemyView : MonoBehaviour
             return;
         }
         
-        Vector2 moveDir = groundedEnemy.GetMoveDirection();
+        Vector2 moveDir = groundedEnemy.GetLookAtDirection();
 
         if (moveDir.x > 0)
         {

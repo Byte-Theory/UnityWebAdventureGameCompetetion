@@ -6,7 +6,7 @@ public class EnemyAnimationManager : MonoBehaviour
     [SerializeField] private Animator anim;
 
     private readonly string AnimWalkTag = "Walk";
-    private readonly string AnimRunTag = "Run";
+    private readonly string AnimRunTag = "Running";
     private readonly string AnimDieTag = "Die";
     
     private readonly string AnimAttack1Tag = "Attack1";

@@ -26,10 +26,20 @@ public class GroundedEnemy : MonoBehaviour
     [Header("Patrolling Pts")]
     [SerializeField] private List<Transform> patrolPointTransforms;
     private List<Vector3> patrolPoints;
+    private float patrolPointMinX;
+    private float patrolPointMaxX;
+    
+    // Player detection
+    private Player detectedPlayer;
+    
+    // Look At
+    private Vector3 lookAtStartPos;
+    private Vector3 lookAtEndPos;
     
     //Ref
     private GroundedEnemyView groundedEnemyView;
     private EnemyAnimationManager enemyAnimationManager;
+    private EnemySensor enemySensor;
 
     private void Start()
     {
@@ -47,14 +57,12 @@ public class GroundedEnemy : MonoBehaviour
     {
         groundedEnemyView = GetComponent<GroundedEnemyView>();
         enemyAnimationManager = GetComponent<EnemyAnimationManager>();
+        enemySensor = GetComponent<EnemySensor>();
         
         groundedEnemyView.SetUp(this);
+        enemySensor.SetUp(this);
         
-        patrolPoints = new List<Vector3>();
-        for (int i = 0; i < patrolPointTransforms.Count; i++)
-        {
-            patrolPoints.Add(patrolPointTransforms[i].position);
-        }
+        SetUpPatrolPoints();
         
         SetEnemyAgroState(EnemyAgroState.Calm);
         SetEnemyMovementState(EnemyMovementStates.Idle);
@@ -114,8 +122,33 @@ public class GroundedEnemy : MonoBehaviour
             stateStartPos = transform.position;
             stateEndPos = GetNextPatrolPoint();
             
+            UpdateLookAtDirections(stateStartPos, stateEndPos);
+            
             float dist = Vector3.Distance(stateStartPos, stateEndPos);
             moveStateDuration = dist / patrollingSpeed;
+        }
+        else if (newState == EnemyMovementStates.LookingAtPlayer)
+        {
+            stateStartPos = transform.position;
+            stateEndPos = detectedPlayer.transform.position;
+            
+            UpdateLookAtDirections(stateStartPos, stateEndPos);
+            
+            moveStateDuration = Random.Range(looAtPlayerDuration.x, looAtPlayerDuration.y);
+        }
+        else if (newState == EnemyMovementStates.ChasingPlayer)
+        {
+            stateStartPos = transform.position;
+            stateEndPos = detectedPlayer.transform.position;
+            
+            UpdateLookAtDirections(stateStartPos, stateEndPos);
+        }
+        else if (newState == EnemyMovementStates.ChasingPlayerIdle)
+        {
+            stateStartPos = transform.position;
+            stateEndPos = detectedPlayer.transform.position;
+            
+            UpdateLookAtDirections(stateStartPos, stateEndPos);
         }
     }
 
@@ -127,10 +160,7 @@ public class GroundedEnemy : MonoBehaviour
 
             if (moveStateTimeElapsed > moveStateDuration)
             {
-                if (enemyAgroState == EnemyAgroState.Calm)
-                {
-                    SetEnemyMovementState(EnemyMovementStates.Patrolling);
-                }
+                SetEnemyMovementState(EnemyMovementStates.Patrolling);
             }
         }
         else if (enemyMovementStates == EnemyMovementStates.Patrolling)
@@ -144,11 +174,87 @@ public class GroundedEnemy : MonoBehaviour
             }
             else
             {
+                SetEnemyMovementState(EnemyMovementStates.Idle);
+            }
+        }
+        else if (enemyMovementStates == EnemyMovementStates.ChasingPlayerIdle)
+        {
+            Vector3 destination = detectedPlayer.transform.position;
+            destination.y = patrolPoints[0].y;
+            
+            if (destination.x < patrolPointMinX)
+            {
+                destination.x = patrolPointMinX;
+            }
+            else if (destination.x > patrolPointMaxX)
+            {
+                destination.x = patrolPointMaxX;
+            }
+            
+            if (!Mathf.Approximately(destination.x, patrolPointMinX) && 
+                !Mathf.Approximately(destination.x, patrolPointMaxX))
+            {
                 if (enemyAgroState == EnemyAgroState.Calm)
                 {
-                    SetEnemyMovementState(EnemyMovementStates.Idle);
+                    SetEnemyMovementState(EnemyMovementStates.Patrolling);
+                }
+                else if (enemyAgroState == EnemyAgroState.Agro)
+                {
+                    SetEnemyMovementState(EnemyMovementStates.ChasingPlayer);
                 }
             }
+            
+            UpdateLookAtDirections(transform.position, detectedPlayer.transform.position);
+        }
+        else if (enemyMovementStates == EnemyMovementStates.LookingAtPlayer)
+        {
+            moveStateTimeElapsed += Time.deltaTime;
+
+            if (moveStateTimeElapsed > moveStateDuration)
+            {
+                if (enemyAgroState == EnemyAgroState.Calm)
+                {
+                    SetEnemyMovementState(EnemyMovementStates.Patrolling);
+                }
+                else if (enemyAgroState == EnemyAgroState.Agro)
+                {
+                    SetEnemyMovementState(EnemyMovementStates.ChasingPlayer);
+                }
+            }
+            
+            UpdateLookAtDirections(transform.position, detectedPlayer.transform.position);
+        }
+        else if (enemyMovementStates == EnemyMovementStates.ChasingPlayer)
+        {
+            Vector3 destination = detectedPlayer.transform.position;
+            destination.y = patrolPoints[0].y;
+            
+            if (destination.x < patrolPointMinX)
+            {
+                destination.x = patrolPointMinX;
+            }
+            else if (destination.x > patrolPointMaxX)
+            {
+                destination.x = patrolPointMaxX;
+            }
+            
+            transform.position = Vector3.MoveTowards(transform.position, 
+                                                destination, Time.deltaTime * chasingSpeed);
+
+            if ((Mathf.Approximately(transform.position.x, patrolPointMinX) || 
+                 Mathf.Approximately(transform.position.x, patrolPointMaxX)))
+            {
+                if (enemyAgroState == EnemyAgroState.Calm)
+                {
+                    SetEnemyMovementState(EnemyMovementStates.Patrolling);
+                }
+                else if (enemyAgroState == EnemyAgroState.Agro)
+                {
+                    SetEnemyMovementState(EnemyMovementStates.ChasingPlayerIdle);
+                }
+            }
+            
+            UpdateLookAtDirections(transform.position, detectedPlayer.transform.position);
         }
     }
 
@@ -173,11 +279,58 @@ public class GroundedEnemy : MonoBehaviour
 
     #endregion
 
-    #region Getters
+    #region Patrol points
 
-    internal Vector3 GetMoveDirection()
+    private void SetUpPatrolPoints()
     {
-        Vector3 moveDirection = stateEndPos - stateStartPos;
+        patrolPointMinX = float.MaxValue;
+        patrolPointMaxX = float.MinValue;
+        patrolPoints = new List<Vector3>();
+        
+        for (int i = 0; i < patrolPointTransforms.Count; i++)
+        {
+            Transform point = patrolPointTransforms[i];
+            if (point.position.x < patrolPointMinX)
+            {
+                patrolPointMinX = point.position.x;
+            }
+
+            if (point.position.x > patrolPointMaxX)
+            {
+                patrolPointMaxX = point.position.x;
+            }
+            
+            patrolPoints.Add(point.position);
+        }
+    }
+
+    #endregion
+    
+    #region Player Detection
+
+    internal void PlayerDetected(Player player)
+    {
+        if (player != null && enemyAgroState != EnemyAgroState.Agro)
+        {
+            detectedPlayer = player;
+            SetEnemyAgroState(EnemyAgroState.Agro);
+            SetEnemyMovementState(EnemyMovementStates.LookingAtPlayer);
+        }
+    }
+
+    #endregion
+    
+    #region Look At
+
+    private void UpdateLookAtDirections(Vector3 startPos, Vector3 endPos)
+    {
+        lookAtStartPos = startPos;
+        lookAtEndPos = endPos;
+    }
+    
+    internal Vector3 GetLookAtDirection()
+    {
+        Vector3 moveDirection = lookAtEndPos - lookAtStartPos;
         moveDirection.Normalize();
         return moveDirection;
     }
