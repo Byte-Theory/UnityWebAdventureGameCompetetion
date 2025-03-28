@@ -4,14 +4,14 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
-public class GroundedEnemy : MonoBehaviour
+public class GroundedMeleeEnemy : MonoBehaviour
 {
     [Header("Enemy Type")] 
     [SerializeField] private EnemyType enemyType;
     
     [Header("States")] 
     [SerializeField] private EnemyAgroState enemyAgroState = EnemyAgroState.Unknown;
-    [SerializeField] private EnemyMovementStates enemyMovementStates = EnemyMovementStates.Unknown;
+    [SerializeField] private EnemyStates enemyStates = EnemyStates.Unknown;
     private float moveStateTimeElapsed;
     private float moveStateDuration;
 
@@ -23,7 +23,7 @@ public class GroundedEnemy : MonoBehaviour
     [SerializeField] private float patrollingSpeed;
     [SerializeField] private Vector2 looAtPlayerDuration;
     [SerializeField] private float chasingSpeed;
-    [SerializeField] private float stoppingDistance;
+    private float stoppingDistance;
     
     [Header("Patrolling Pts")]
     [SerializeField] private List<Transform> patrolPointTransforms;
@@ -39,10 +39,10 @@ public class GroundedEnemy : MonoBehaviour
     private Vector3 lookAtEndPos;
     
     //Ref
-    private GroundedEnemyView groundedEnemyView;
-    private EnemyAnimationManager enemyAnimationManager;
-    private EnemySensor enemySensor;
-    private EnemyAttackManager enemyAttackManager;
+    public GroundedEnemyView groundedEnemyView {get; private set; }
+    public EnemyAnimationManager enemyAnimationManager {get; private set; }
+    public GroundedMeleeEnemySensor groundedMeleeEnemySensor {get; private set; }
+    public EnemyAttackManager enemyAttackManager {get; private set; }
 
     private void Start()
     {
@@ -60,16 +60,19 @@ public class GroundedEnemy : MonoBehaviour
     {
         groundedEnemyView = GetComponent<GroundedEnemyView>();
         enemyAnimationManager = GetComponent<EnemyAnimationManager>();
-        enemySensor = GetComponent<EnemySensor>();
+        groundedMeleeEnemySensor = GetComponent<GroundedMeleeEnemySensor>();
         enemyAttackManager = GetComponent<EnemyAttackManager>();
         
         groundedEnemyView.SetUp(this);
-        enemySensor.SetUp(this);
+        groundedMeleeEnemySensor.SetUp(this);
+        enemyAttackManager.SetUp(this);
+
+        stoppingDistance = groundedMeleeEnemySensor.GetStoppingDistance();
         
         SetUpPatrolPoints();
         
         SetEnemyAgroState(EnemyAgroState.Calm);
-        SetEnemyMovementState(EnemyMovementStates.Idle);
+        SetEnemyMovementState(EnemyStates.Idle);
     }
 
     #endregion
@@ -95,14 +98,14 @@ public class GroundedEnemy : MonoBehaviour
 
     #region Movement State
 
-    internal EnemyMovementStates GetEnemyMovementState()
+    internal EnemyStates GetEnemyMovementState()
     {
-        return enemyMovementStates;
+        return enemyStates;
     }
 
-    private void SetEnemyMovementState(EnemyMovementStates newState, bool overrideState = false)
+    private void SetEnemyMovementState(EnemyStates newState, bool overrideState = false)
     {
-        if (enemyMovementStates == newState && !overrideState)
+        if (enemyStates == newState && !overrideState)
         {
             return;
         }
@@ -111,18 +114,18 @@ public class GroundedEnemy : MonoBehaviour
         
         enemyAnimationManager.UpdateAnimation(newState);
         
-        enemyMovementStates = newState;
+        enemyStates = newState;
         moveStateTimeElapsed = 0.0f;
     }
 
-    private void SetStateData(EnemyMovementStates newState)
+    private void SetStateData(EnemyStates newState)
     {
-        if (newState == EnemyMovementStates.Idle)
+        if (newState == EnemyStates.Idle)
         {
             enemyAttackManager.ResetAttackPattern();
             moveStateDuration = Random.Range(idleDuration.x, idleDuration.y);
         }
-        else if (newState == EnemyMovementStates.Patrolling)
+        else if (newState == EnemyStates.Patrolling)
         {
             stateStartPos = transform.position;
             stateEndPos = GetNextPatrolPoint();
@@ -132,7 +135,7 @@ public class GroundedEnemy : MonoBehaviour
             float dist = Vector3.Distance(stateStartPos, stateEndPos);
             moveStateDuration = dist / patrollingSpeed;
         }
-        else if (newState == EnemyMovementStates.LookingAtPlayer)
+        else if (newState == EnemyStates.LookingAtPlayer)
         {
             stateStartPos = transform.position;
             stateEndPos = detectedPlayer.transform.position;
@@ -141,25 +144,25 @@ public class GroundedEnemy : MonoBehaviour
             
             moveStateDuration = Random.Range(looAtPlayerDuration.x, looAtPlayerDuration.y);
         }
-        else if (newState == EnemyMovementStates.ChasingPlayer)
+        else if (newState == EnemyStates.ChasingPlayer)
         {
             stateStartPos = transform.position;
             stateEndPos = detectedPlayer.transform.position;
             
             UpdateLookAtDirections(stateStartPos, stateEndPos);
         }
-        else if (newState == EnemyMovementStates.ChasingPlayerIdle)
+        else if (newState == EnemyStates.ChasingPlayerIdle)
         {
             stateStartPos = transform.position;
             stateEndPos = detectedPlayer.transform.position;
             
             UpdateLookAtDirections(stateStartPos, stateEndPos);
         }
-        else if (newState == EnemyMovementStates.StartAttacking)
+        else if (newState == EnemyStates.StartAttacking)
         {
             enemyAttackManager.SetUpAttackPattern();
         }
-        else if (newState == EnemyMovementStates.Attacking)
+        else if (newState == EnemyStates.Attacking)
         {
             enemyAttackManager.SetUpAttack();
             
@@ -170,7 +173,7 @@ public class GroundedEnemy : MonoBehaviour
             
             UpdateLookAtDirections(stateStartPos, stateEndPos);
         }
-        else if (newState == EnemyMovementStates.AttackingIdle)
+        else if (newState == EnemyStates.AttackingIdle)
         {
             stateStartPos = transform.position;
             stateEndPos = detectedPlayer.transform.position;
@@ -183,21 +186,21 @@ public class GroundedEnemy : MonoBehaviour
 
     private void UpdateMoveStateTimer()
     {
-        if (enemyMovementStates == EnemyMovementStates.StartAttacking)
+        if (enemyStates == EnemyStates.StartAttacking)
         {
-            SetEnemyMovementState(EnemyMovementStates.Attacking);
+            SetEnemyMovementState(EnemyStates.Attacking);
         }
         
-        if (enemyMovementStates == EnemyMovementStates.Idle)
+        if (enemyStates == EnemyStates.Idle)
         {
             moveStateTimeElapsed += Time.deltaTime;
 
             if (moveStateTimeElapsed > moveStateDuration)
             {
-                SetEnemyMovementState(EnemyMovementStates.Patrolling);
+                SetEnemyMovementState(EnemyStates.Patrolling);
             }
         }
-        else if (enemyMovementStates == EnemyMovementStates.Patrolling)
+        else if (enemyStates == EnemyStates.Patrolling)
         {
             moveStateTimeElapsed += Time.deltaTime;
 
@@ -208,10 +211,10 @@ public class GroundedEnemy : MonoBehaviour
             }
             else
             {
-                SetEnemyMovementState(EnemyMovementStates.Idle);
+                SetEnemyMovementState(EnemyStates.Idle);
             }
         }
-        else if (enemyMovementStates == EnemyMovementStates.ChasingPlayerIdle)
+        else if (enemyStates == EnemyStates.ChasingPlayerIdle)
         {
             Vector3 destination = detectedPlayer.transform.position;
             destination.y = patrolPoints[0].y;
@@ -230,17 +233,17 @@ public class GroundedEnemy : MonoBehaviour
             {
                 if (enemyAgroState == EnemyAgroState.Calm)
                 {
-                    SetEnemyMovementState(EnemyMovementStates.Patrolling);
+                    SetEnemyMovementState(EnemyStates.Patrolling);
                 }
                 else if (enemyAgroState == EnemyAgroState.Agro)
                 {
-                    SetEnemyMovementState(EnemyMovementStates.ChasingPlayer);
+                    SetEnemyMovementState(EnemyStates.ChasingPlayer);
                 }
             }
             
             UpdateLookAtDirections(transform.position, detectedPlayer.transform.position);
         }
-        else if (enemyMovementStates == EnemyMovementStates.LookingAtPlayer)
+        else if (enemyStates == EnemyStates.LookingAtPlayer)
         {
             moveStateTimeElapsed += Time.deltaTime;
 
@@ -248,17 +251,17 @@ public class GroundedEnemy : MonoBehaviour
             {
                 if (enemyAgroState == EnemyAgroState.Calm)
                 {
-                    SetEnemyMovementState(EnemyMovementStates.Patrolling);
+                    SetEnemyMovementState(EnemyStates.Patrolling);
                 }
                 else if (enemyAgroState == EnemyAgroState.Agro)
                 {
-                    SetEnemyMovementState(EnemyMovementStates.ChasingPlayer);
+                    SetEnemyMovementState(EnemyStates.ChasingPlayer);
                 }
             }
             
             UpdateLookAtDirections(transform.position, detectedPlayer.transform.position);
         }
-        else if (enemyMovementStates == EnemyMovementStates.ChasingPlayer)
+        else if (enemyStates == EnemyStates.ChasingPlayer)
         {
             Vector3 destination = detectedPlayer.transform.position;
             destination.y = patrolPoints[0].y;
@@ -283,52 +286,52 @@ public class GroundedEnemy : MonoBehaviour
             {
                 if (enemyAgroState == EnemyAgroState.Calm)
                 {
-                    SetEnemyMovementState(EnemyMovementStates.Patrolling);
+                    SetEnemyMovementState(EnemyStates.Patrolling);
                 }
                 else if (enemyAgroState == EnemyAgroState.Agro)
                 {
-                    SetEnemyMovementState(EnemyMovementStates.ChasingPlayerIdle);
+                    SetEnemyMovementState(EnemyStates.ChasingPlayerIdle);
                 }
             }
             else if (distToPlayer < stoppingDistance)
             {
                 if (enemyAgroState == EnemyAgroState.Calm)
                 {
-                    SetEnemyMovementState(EnemyMovementStates.Patrolling);
+                    SetEnemyMovementState(EnemyStates.Patrolling);
                 }
                 else if (enemyAgroState == EnemyAgroState.Agro)
                 {
-                    SetEnemyMovementState(EnemyMovementStates.StartAttacking);
+                    SetEnemyMovementState(EnemyStates.StartAttacking);
                 }
             }
             
             UpdateLookAtDirections(transform.position, detectedPlayer.transform.position);
         }
-        else if (enemyMovementStates == EnemyMovementStates.Attacking)
+        else if (enemyStates == EnemyStates.Attacking)
         {
             moveStateTimeElapsed += Time.deltaTime;
 
             if (moveStateTimeElapsed < moveStateDuration)
             {
-                enemyAttackManager.TryDamageThePlayer(moveStateTimeElapsed);
+                enemyAttackManager.TryDamageThePlayer(moveStateTimeElapsed, detectedPlayer);
             }
             else
             {
                 bool isAttackCompleted = enemyAttackManager.CheckIfAttackCompleted();
                 if (isAttackCompleted)
                 {
-                    SetEnemyMovementState(EnemyMovementStates.AttackingIdle);
+                    SetEnemyMovementState(EnemyStates.AttackingIdle);
                 }
                 else
                 {   
-                    SetEnemyMovementState(EnemyMovementStates.Attacking, true);
+                    SetEnemyMovementState(EnemyStates.Attacking, true);
                 }
             }
             
             
             UpdateLookAtDirections(transform.position, detectedPlayer.transform.position);
         }
-        else if (enemyMovementStates == EnemyMovementStates.AttackingIdle)
+        else if (enemyStates == EnemyStates.AttackingIdle)
         {
             moveStateTimeElapsed += Time.deltaTime;
             
@@ -339,18 +342,18 @@ public class GroundedEnemy : MonoBehaviour
                 {
                     if (enemyAgroState == EnemyAgroState.Calm)
                     {
-                        SetEnemyMovementState(EnemyMovementStates.Patrolling);
+                        SetEnemyMovementState(EnemyStates.Patrolling);
                         return;
                     }
                     else if (enemyAgroState == EnemyAgroState.Agro)
                     {
-                        SetEnemyMovementState(EnemyMovementStates.ChasingPlayer);
+                        SetEnemyMovementState(EnemyStates.ChasingPlayer);
                         return;
                     }
                 }
                 else
                 {
-                    SetEnemyMovementState(EnemyMovementStates.StartAttacking);
+                    SetEnemyMovementState(EnemyStates.StartAttacking);
                 }
             }
         }
@@ -412,13 +415,13 @@ public class GroundedEnemy : MonoBehaviour
         {
             detectedPlayer = player;
             SetEnemyAgroState(EnemyAgroState.Agro);
-            SetEnemyMovementState(EnemyMovementStates.LookingAtPlayer);
+            SetEnemyMovementState(EnemyStates.LookingAtPlayer);
         }
         else if (player == null && enemyAgroState != EnemyAgroState.Calm)
         {
             detectedPlayer = null;
             SetEnemyAgroState(EnemyAgroState.Calm);
-            SetEnemyMovementState(EnemyMovementStates.Idle);
+            SetEnemyMovementState(EnemyStates.Idle);
         }
     }
     
@@ -455,8 +458,6 @@ public class GroundedEnemy : MonoBehaviour
         {
             Gizmos.DrawWireSphere(patrolPointTransforms[i].position, 0.1f);
         }
-        
-        Gizmos.DrawWireSphere(transform.position, stoppingDistance);
     }
 
     #endregion

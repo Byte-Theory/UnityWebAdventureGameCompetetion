@@ -16,6 +16,17 @@ public class EnemyAttackManager : MonoBehaviour
     private int attackCt;
     private bool isAttackCompleted;
 
+    private GroundedMeleeEnemy groundedMeleeEnemy;
+
+    #region SetUp
+
+    internal void SetUp(GroundedMeleeEnemy groundedMeleeEnemy)
+    {
+        this.groundedMeleeEnemy = groundedMeleeEnemy;
+    }
+    
+    #endregion
+    
     #region Attack Pattern
 
     internal void SetUpAttackPattern()
@@ -44,12 +55,18 @@ public class EnemyAttackManager : MonoBehaviour
         isAttackCompleted = false;
     }
 
-    internal void TryDamageThePlayer(float attackTimeElapsed)
+    internal void TryDamageThePlayer(float attackTimeElapsed, Player player)
     {
         if (attackTimeElapsed > attackDelay && !isAttackCompleted)
         {
             isAttackCompleted = true;
-            // TODO: do damage to player
+            
+            float distToPlayer = Vector3.Distance(player.transform.position, transform.position);
+            float maxDistForValidDmg = groundedMeleeEnemy.groundedMeleeEnemySensor.GetMaxDistForValidDmg();
+            if (distToPlayer <= maxDistForValidDmg)
+            {
+                // TODO: do damage to player
+            }
         }
     }
     

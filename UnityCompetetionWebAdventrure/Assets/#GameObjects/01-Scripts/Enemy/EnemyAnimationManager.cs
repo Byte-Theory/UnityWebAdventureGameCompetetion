@@ -14,11 +14,11 @@ public class EnemyAnimationManager : MonoBehaviour
    
     #region Animations
     
-    internal void UpdateAnimation(EnemyMovementStates enemyMovementStates)
+    internal void UpdateAnimation(EnemyStates enemyStates)
     {
-        bool isWalk = enemyMovementStates == EnemyMovementStates.Patrolling;
-        bool isRun = enemyMovementStates == EnemyMovementStates.ChasingPlayer;
-        bool isAttack1 = enemyMovementStates == EnemyMovementStates.Attacking;
+        bool isWalk = enemyStates == EnemyStates.Patrolling;
+        bool isRun = enemyStates == EnemyStates.ChasingPlayer;
+        bool isAttack1 = enemyStates == EnemyStates.Attacking;
         
         anim.SetBool(AnimWalkTag, isWalk);
         anim.SetBool(AnimRunTag, isRun);

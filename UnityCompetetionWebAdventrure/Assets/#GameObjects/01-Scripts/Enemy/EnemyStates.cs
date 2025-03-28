@@ -5,7 +5,7 @@ public enum EnemyAgroState
     Agro
 }
 
-public enum EnemyMovementStates
+public enum EnemyStates
 {
     Unknown,
     Idle,

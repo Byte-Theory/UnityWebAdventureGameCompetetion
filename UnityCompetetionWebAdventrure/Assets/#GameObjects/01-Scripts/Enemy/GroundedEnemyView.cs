@@ -9,7 +9,7 @@ public class GroundedEnemyView : MonoBehaviour
     private Vector3 lookScale; 
     
     // Grounded Enemy
-    private GroundedEnemy groundedEnemy;
+    private GroundedMeleeEnemy _groundedMeleeEnemy;
 
     private void Update()
     {
@@ -18,9 +18,9 @@ public class GroundedEnemyView : MonoBehaviour
 
     #region SetUp
 
-    internal void SetUp(GroundedEnemy groundedEnemy)
+    internal void SetUp(GroundedMeleeEnemy groundedMeleeEnemy)
     {
-        this.groundedEnemy = groundedEnemy;
+        this._groundedMeleeEnemy = groundedMeleeEnemy;
         SetUpLookDir();
     }
 
@@ -36,14 +36,14 @@ public class GroundedEnemyView : MonoBehaviour
 
     private void UpdateLookDir()
     {
-        EnemyMovementStates enemyMovementStates = groundedEnemy.GetEnemyMovementState();
+        EnemyStates enemyStates = _groundedMeleeEnemy.GetEnemyMovementState();
 
-        if (enemyMovementStates == EnemyMovementStates.Idle)
+        if (enemyStates == EnemyStates.Idle)
         {
             return;
         }
         
-        Vector2 moveDir = groundedEnemy.GetLookAtDirection();
+        Vector2 moveDir = _groundedMeleeEnemy.GetLookAtDirection();
 
         if (moveDir.x > 0)
         {

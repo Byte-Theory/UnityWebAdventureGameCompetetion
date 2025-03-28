@@ -2,15 +2,19 @@ using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class EnemySensor : MonoBehaviour
+public class GroundedMeleeEnemySensor : MonoBehaviour
 {
     [Header("Player Detection")]
     [SerializeField] private LayerMask playerLayer;
     [SerializeField] private float playerDetectionRadius;
     [SerializeField] private Vector3 playerDetectionOffset;
     
+    [Header("Stopping Distance")]
+    [SerializeField] private float stoppingDistance;
+    [SerializeField] private float maxDistForPlayerDmg;
+    
     // Enemy
-    private GroundedEnemy groundedEnemy;
+    private GroundedMeleeEnemy groundedMeleeEnemy;
 
     private Player detectedPlayer;
 
@@ -22,9 +26,9 @@ public class EnemySensor : MonoBehaviour
 
     #region SetUp
 
-    internal void SetUp(GroundedEnemy groundedEnemy)
+    internal void SetUp(GroundedMeleeEnemy groundedMeleeEnemy)
     {
-        this.groundedEnemy = groundedEnemy;
+        this.groundedMeleeEnemy = groundedMeleeEnemy;
     }
 
     #endregion
@@ -45,7 +49,7 @@ public class EnemySensor : MonoBehaviour
         Player player = hits[0].transform.GetComponent<Player>();
 
         detectedPlayer = player;
-        groundedEnemy.PlayerDetected(player);
+        groundedMeleeEnemy.PlayerDetected(player);
     }
 
     private void CheckInPlayerIsOutOfRange()
@@ -60,8 +64,22 @@ public class EnemySensor : MonoBehaviour
         if (dist > playerDetectionRadius)
         {
             detectedPlayer = null;
-            groundedEnemy.PlayerDetected(null);
+            groundedMeleeEnemy.PlayerDetected(null);
         }
+    }
+
+    #endregion
+
+    #region Getter
+
+    internal float GetStoppingDistance()
+    {
+        return stoppingDistance;
+    }
+    
+    internal float GetMaxDistForValidDmg()
+    {
+        return maxDistForPlayerDmg;
     }
 
     #endregion
@@ -70,8 +88,14 @@ public class EnemySensor : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = new Color(1.0f, 0.2f, 0.2f);
+        Gizmos.color = new Color(0.25f, 0.25f, 0.75f);
         Gizmos.DrawWireSphere(transform.position + playerDetectionOffset, playerDetectionRadius);
+        
+        Gizmos.color = new Color(1.0f, 0.2f, 0.2f);
+        Gizmos.DrawWireSphere(transform.position, stoppingDistance);
+        
+        Gizmos.color = new Color(0.5f, 0.75f, 0.2f);
+        Gizmos.DrawWireSphere(transform.position + playerDetectionOffset, maxDistForPlayerDmg);
     }
 
     #endregion
