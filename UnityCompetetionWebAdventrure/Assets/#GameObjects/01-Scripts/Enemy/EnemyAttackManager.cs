@@ -9,6 +9,9 @@ public class EnemyAttackManager : MonoBehaviour
     [SerializeField] private Vector2 attackIdleDuration;
     [SerializeField] private float attackAnimDuration;
     [SerializeField] private float attackDelay;
+
+    [Header("Damage Intensity")] 
+    [SerializeField] private Vector2 enemyDamageRange;
     
     // Current Attack Data
     private int attackPatternIdx;
@@ -65,6 +68,7 @@ public class EnemyAttackManager : MonoBehaviour
             float maxDistForValidDmg = groundedMeleeEnemy.groundedMeleeEnemySensor.GetMaxDistForValidDmg();
             if (distToPlayer <= maxDistForValidDmg)
             {
+                float damageToGive = Random.Range(enemyDamageRange.x, enemyDamageRange.y);
                 // TODO: do damage to player
             }
         }
