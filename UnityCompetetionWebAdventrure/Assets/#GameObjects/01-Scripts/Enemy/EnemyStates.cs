@@ -13,6 +13,8 @@ public enum EnemyMovementStates
     ChasingPlayerIdle,
     LookingAtPlayer,
     ChasingPlayer,
+    StartAttacking,
+    AttackingIdle,
     Attacking,
     Dodging
 }

@@ -12,9 +12,12 @@ public class EnemySensor : MonoBehaviour
     // Enemy
     private GroundedEnemy groundedEnemy;
 
+    private Player detectedPlayer;
+
     private void Update()
     {
         CheckForPlayerInRange();
+        CheckInPlayerIsOutOfRange();
     }
 
     #region SetUp
@@ -41,7 +44,24 @@ public class EnemySensor : MonoBehaviour
 
         Player player = hits[0].transform.GetComponent<Player>();
 
+        detectedPlayer = player;
         groundedEnemy.PlayerDetected(player);
+    }
+
+    private void CheckInPlayerIsOutOfRange()
+    {
+        if (detectedPlayer == null)
+        {
+            return;
+        }
+        
+        float dist = Vector3.Distance(transform.position, detectedPlayer.transform.position);
+
+        if (dist > playerDetectionRadius)
+        {
+            detectedPlayer = null;
+            groundedEnemy.PlayerDetected(null);
+        }
     }
 
     #endregion

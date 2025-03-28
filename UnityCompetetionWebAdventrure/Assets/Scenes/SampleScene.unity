@@ -182,6 +182,7 @@ GameObject:
   - component: {fileID: 276061900}
   - component: {fileID: 276061901}
   - component: {fileID: 276061902}
+  - component: {fileID: 276061903}
   m_Layer: 9
   m_Name: Enemy
   m_TagString: Untagged
@@ -208,6 +209,7 @@ MonoBehaviour:
   patrollingSpeed: 1.5
   looAtPlayerDuration: {x: 0.5, y: 1}
   chasingSpeed: 3
+  stoppingDistance: 1
   patrolPointTransforms:
   - {fileID: 2041567915}
   - {fileID: 1458168209}
@@ -271,6 +273,22 @@ MonoBehaviour:
     m_Bits: 128
   playerDetectionRadius: 5
   playerDetectionOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &276061903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 276061897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dd2511b5b0ba0d4ba516ac2fb78c724, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackPattern: 020000000100000003000000
+  attackIdleDuration: {x: 1.5, y: 2}
+  attackAnimDuration: 0.58
+  attackDelay: 0.4
 --- !u!1 &278448326
 GameObject:
   m_ObjectHideFlags: 0

@@ -22,7 +22,7 @@ public class EnemyAnimationManager : MonoBehaviour
         
         anim.SetBool(AnimWalkTag, isWalk);
         anim.SetBool(AnimRunTag, isRun);
-        anim.SetBool(AnimRunTag, isAttack1);
+        anim.SetBool(AnimAttack1Tag, isAttack1);
     }
 
     internal void PlayDeathAnimation()

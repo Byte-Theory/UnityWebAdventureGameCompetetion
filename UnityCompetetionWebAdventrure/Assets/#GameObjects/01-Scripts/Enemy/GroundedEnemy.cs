@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public class GroundedEnemy : MonoBehaviour
@@ -22,6 +23,7 @@ public class GroundedEnemy : MonoBehaviour
     [SerializeField] private float patrollingSpeed;
     [SerializeField] private Vector2 looAtPlayerDuration;
     [SerializeField] private float chasingSpeed;
+    [SerializeField] private float stoppingDistance;
     
     [Header("Patrolling Pts")]
     [SerializeField] private List<Transform> patrolPointTransforms;
@@ -40,6 +42,7 @@ public class GroundedEnemy : MonoBehaviour
     private GroundedEnemyView groundedEnemyView;
     private EnemyAnimationManager enemyAnimationManager;
     private EnemySensor enemySensor;
+    private EnemyAttackManager enemyAttackManager;
 
     private void Start()
     {
@@ -58,6 +61,7 @@ public class GroundedEnemy : MonoBehaviour
         groundedEnemyView = GetComponent<GroundedEnemyView>();
         enemyAnimationManager = GetComponent<EnemyAnimationManager>();
         enemySensor = GetComponent<EnemySensor>();
+        enemyAttackManager = GetComponent<EnemyAttackManager>();
         
         groundedEnemyView.SetUp(this);
         enemySensor.SetUp(this);
@@ -96,9 +100,9 @@ public class GroundedEnemy : MonoBehaviour
         return enemyMovementStates;
     }
 
-    private void SetEnemyMovementState(EnemyMovementStates newState)
+    private void SetEnemyMovementState(EnemyMovementStates newState, bool overrideState = false)
     {
-        if (enemyMovementStates == newState)
+        if (enemyMovementStates == newState && !overrideState)
         {
             return;
         }
@@ -115,6 +119,7 @@ public class GroundedEnemy : MonoBehaviour
     {
         if (newState == EnemyMovementStates.Idle)
         {
+            enemyAttackManager.ResetAttackPattern();
             moveStateDuration = Random.Range(idleDuration.x, idleDuration.y);
         }
         else if (newState == EnemyMovementStates.Patrolling)
@@ -150,10 +155,39 @@ public class GroundedEnemy : MonoBehaviour
             
             UpdateLookAtDirections(stateStartPos, stateEndPos);
         }
+        else if (newState == EnemyMovementStates.StartAttacking)
+        {
+            enemyAttackManager.SetUpAttackPattern();
+        }
+        else if (newState == EnemyMovementStates.Attacking)
+        {
+            enemyAttackManager.SetUpAttack();
+            
+            stateStartPos = transform.position;
+            stateEndPos = detectedPlayer.transform.position;
+
+            moveStateDuration = enemyAttackManager.GetAttackDuration();
+            
+            UpdateLookAtDirections(stateStartPos, stateEndPos);
+        }
+        else if (newState == EnemyMovementStates.AttackingIdle)
+        {
+            stateStartPos = transform.position;
+            stateEndPos = detectedPlayer.transform.position;
+
+            moveStateDuration = enemyAttackManager.GetAttackIdleDuration();
+            
+            UpdateLookAtDirections(stateStartPos, stateEndPos);
+        }
     }
 
     private void UpdateMoveStateTimer()
     {
+        if (enemyMovementStates == EnemyMovementStates.StartAttacking)
+        {
+            SetEnemyMovementState(EnemyMovementStates.Attacking);
+        }
+        
         if (enemyMovementStates == EnemyMovementStates.Idle)
         {
             moveStateTimeElapsed += Time.deltaTime;
@@ -241,6 +275,9 @@ public class GroundedEnemy : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, 
                                                 destination, Time.deltaTime * chasingSpeed);
 
+            float distToDestination = Vector3.Distance(transform.position, destination);
+            float distToPlayer = Vector3.Distance(transform.position, detectedPlayer.transform.position);
+            
             if ((Mathf.Approximately(transform.position.x, patrolPointMinX) || 
                  Mathf.Approximately(transform.position.x, patrolPointMaxX)))
             {
@@ -253,8 +290,69 @@ public class GroundedEnemy : MonoBehaviour
                     SetEnemyMovementState(EnemyMovementStates.ChasingPlayerIdle);
                 }
             }
+            else if (distToPlayer < stoppingDistance)
+            {
+                if (enemyAgroState == EnemyAgroState.Calm)
+                {
+                    SetEnemyMovementState(EnemyMovementStates.Patrolling);
+                }
+                else if (enemyAgroState == EnemyAgroState.Agro)
+                {
+                    SetEnemyMovementState(EnemyMovementStates.StartAttacking);
+                }
+            }
             
             UpdateLookAtDirections(transform.position, detectedPlayer.transform.position);
+        }
+        else if (enemyMovementStates == EnemyMovementStates.Attacking)
+        {
+            moveStateTimeElapsed += Time.deltaTime;
+
+            if (moveStateTimeElapsed < moveStateDuration)
+            {
+                enemyAttackManager.TryDamageThePlayer(moveStateTimeElapsed);
+            }
+            else
+            {
+                bool isAttackCompleted = enemyAttackManager.CheckIfAttackCompleted();
+                if (isAttackCompleted)
+                {
+                    SetEnemyMovementState(EnemyMovementStates.AttackingIdle);
+                }
+                else
+                {   
+                    SetEnemyMovementState(EnemyMovementStates.Attacking, true);
+                }
+            }
+            
+            
+            UpdateLookAtDirections(transform.position, detectedPlayer.transform.position);
+        }
+        else if (enemyMovementStates == EnemyMovementStates.AttackingIdle)
+        {
+            moveStateTimeElapsed += Time.deltaTime;
+            
+            if (moveStateTimeElapsed > moveStateDuration)
+            {
+                float distToPlayer = Vector3.Distance(transform.position, detectedPlayer.transform.position);
+                if (distToPlayer > stoppingDistance)
+                {
+                    if (enemyAgroState == EnemyAgroState.Calm)
+                    {
+                        SetEnemyMovementState(EnemyMovementStates.Patrolling);
+                        return;
+                    }
+                    else if (enemyAgroState == EnemyAgroState.Agro)
+                    {
+                        SetEnemyMovementState(EnemyMovementStates.ChasingPlayer);
+                        return;
+                    }
+                }
+                else
+                {
+                    SetEnemyMovementState(EnemyMovementStates.StartAttacking);
+                }
+            }
         }
     }
 
@@ -316,8 +414,14 @@ public class GroundedEnemy : MonoBehaviour
             SetEnemyAgroState(EnemyAgroState.Agro);
             SetEnemyMovementState(EnemyMovementStates.LookingAtPlayer);
         }
+        else if (player == null && enemyAgroState != EnemyAgroState.Calm)
+        {
+            detectedPlayer = null;
+            SetEnemyAgroState(EnemyAgroState.Calm);
+            SetEnemyMovementState(EnemyMovementStates.Idle);
+        }
     }
-
+    
     #endregion
     
     #region Look At
@@ -351,6 +455,8 @@ public class GroundedEnemy : MonoBehaviour
         {
             Gizmos.DrawWireSphere(patrolPointTransforms[i].position, 0.1f);
         }
+        
+        Gizmos.DrawWireSphere(transform.position, stoppingDistance);
     }
 
     #endregion
